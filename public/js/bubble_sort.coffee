@@ -1,5 +1,3 @@
-# each data point will have a width of 7
-# max data points is 100 (for an 800px wide canvas)
 class Animate
   constructor: (@id, @canvas_height, @canvas_width, @stroke, @frame_rate) ->
     this.ctx        = document.getElementById("#{@id}").getContext("2d")
@@ -107,7 +105,9 @@ class BubbleSort
     this.progression.push(current_node)
 
 $(document).ready () ->
+  # number in milliseconds to pause between animation frames
   frame_rate    = 25
+  # number in pixels to determine width of data set lines
   stroke        = 20
   canvas_height = parseInt($('#bubble_sort').css('height').replace("px", ""))
   canvas_width  = parseInt($('#bubble_sort').css('width').replace("px", ""))
