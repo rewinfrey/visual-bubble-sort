@@ -79,55 +79,6 @@ class Animate
           this.frame_rate
       )
 
-  draw_data_set: (data_set) ->
-    this.data_size = data_set.length
-    for num, num_index in data_set
-      this.ctx.fillStyle = "rgb(45,123,200)"
-      this.ctx.fillRect(num_index * this.stroke, this.height - num, this.stroke, num)
-
-  draw_current: (x, y) ->
-    this.ctx.clearRect(x * this.stroke, 0, this.stroke, this.height)
-    this.ctx.fillStyle = "rgb(51, 204, 102)"
-    this.ctx.fillRect(x * this.stroke, this.height - y, this.stroke, y)
-
-  draw_current_two: (x, y) ->
-    this.ctx.clearRect(x * this.stroke, 0, this.stroke, this.height)
-    this.ctx.fillStyle = "rgb(255, 142, 10)"
-    this.ctx.fillRect(x * this.stroke, this.height - y, this.stroke, y)
-
-  draw_last: (x, y) ->
-    this.ctx.clearRect(x * this.stroke, 0, this.stroke, this.height)
-    this.ctx.fillStyle = "rgb(150,123,200)"
-    this.ctx.fillRect(x * this.stroke, this.height - y, this.stroke, y)
-
-  draw_progression: (progression) ->
-    this.steps = progression.length if this.steps == 0
-
-    if progression.length != 0
-      current = progression.shift()
-      this.draw_current(current.x, current.y)
-      if progression.length != 0
-        next = progression.shift()
-        this.draw_current_two(next.x, next.y)
-      this.last_node1 = current if current
-      this.last_node2 = next if next
-      window.setTimeout(
-        () =>
-          this.draw_last(this.last_node1.x, this.last_node1.y) if this.last_node1 != null
-          this.draw_last(this.last_node2.x, this.last_node2.y) if this.last_node2 != null
-          this.draw_progression(progression)
-        ,
-          this.frame_rate
-      )
-    else
-      $('#steps').html("#{this.steps} comparative steps were required to sort #{this.data_size} elements")
-
-  in_progression: (current_node, progression) ->
-    for node in progression
-      if current_node.x == node.x && current_node.y == node.y
-        return true
-    return false
-
 class Node
   constructor: (@x, @y) ->
     this.x = @x
@@ -157,7 +108,6 @@ class LinkedList
   # adds a new node to a linked list. first node is "next" to last node
   # first_node.prev -> second_node.prev -> third_node ...
   # first_node <- second_node.next <- third_node.next
-
   add_node: (node) ->
     if this.length == 0
       node.prev  = node
@@ -182,7 +132,7 @@ class LinkedList
     this.add_node(temp_node)
 
 class BubbleSort
-  constructor: (@canvas_height, @canvas_width, @stroke)->
+  constructor: (@canvas_height, @canvas_width, @stroke) ->
     this.data_set        = []
     this.animation_list  = new LinkedList()
     this.canvas_height   = @canvas_height
@@ -195,12 +145,12 @@ class BubbleSort
 
   bubble_sort: ->
     switched = false
+
     for element, index in this.data_set
       if index != 0
-        current = element
-        previous = this.data_set[index - 1]
-        previous_previous = this.data_set[index - 2]
-        # this.animation_list.add_animation_node(previous_previous, "unsorted")
+        current   = element
+        previous  = this.data_set[index - 1]
+
         this.animation_list.add_animation_node(current, "minimum")
         this.animation_list.add_animation_node(current, "minimum")
 
@@ -209,14 +159,17 @@ class BubbleSort
           switched = true
         else
           this.animation_list.add_animation_node(previous, "unsorted")
-          # this.animation_list.add_animation_node(current, "unsorted")
+
     this.animation_list.add_animation_node(this.data_set.pop(), "sorted")
+
     this.bubble_sort() if switched == true
+
     if switched == false && this.data_set.length > 0
       for element in this.data_set
         this.animation_list.add_animation_node(element, "sorted")
 
   swap_data_points: (previous, current, index) ->
+    # nastay nastay
     this.animation_list.add_animation_node(current, "minimum")
     this.animation_list.add_animation_node(previous, "compare2")
     this.animation_list.add_animation_node(current, "minimum")
@@ -226,6 +179,8 @@ class BubbleSort
     current.x = index - 1
     this.data_set[index]   = previous
     this.data_set[(index-1)] = current
+    
+    # nastay nastay
     this.animation_list.add_animation_node(previous, "minimum")
     this.animation_list.add_animation_node(current, "compare2")
     this.animation_list.add_animation_node(previous, "minimum")
@@ -236,15 +191,19 @@ class BubbleSort
 
 $(document).ready () ->
   # number in milliseconds to pause between animation frames
-  frame_rate    = 50
+  frame_rate    = 40
   # number in pixels to determine width of data set lines
   stroke        = 35
   canvas_height = parseInt($('#bubble_sort').css('height').replace("px", ""))
   canvas_width  = parseInt($('#bubble_sort').css('width').replace("px", ""))
+  
+  # animate object draws unsorted data set, and processes the animation sequence for the bubble sort
   animate       = new Animate("bubble_sort", canvas_height, canvas_width, stroke, frame_rate)
+  
+  # contains unsorted data, as well as a linked list for recording the animation sequence to be drawn by the animation object
   bubble        = new BubbleSort(canvas_height, canvas_width, stroke)
+
   bubble.initialize_data()
   animate.draw_array(bubble.data_set)
   bubble.bubble_sort()
-  console.log bubble.animation_list
   animate.process_animation(bubble.animation_list)

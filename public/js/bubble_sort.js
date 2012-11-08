@@ -106,80 +106,6 @@
       }
     };
 
-    Animate.prototype.draw_data_set = function(data_set) {
-      var num, num_index, _i, _len, _results;
-      this.data_size = data_set.length;
-      _results = [];
-      for (num_index = _i = 0, _len = data_set.length; _i < _len; num_index = ++_i) {
-        num = data_set[num_index];
-        this.ctx.fillStyle = "rgb(45,123,200)";
-        _results.push(this.ctx.fillRect(num_index * this.stroke, this.height - num, this.stroke, num));
-      }
-      return _results;
-    };
-
-    Animate.prototype.draw_current = function(x, y) {
-      this.ctx.clearRect(x * this.stroke, 0, this.stroke, this.height);
-      this.ctx.fillStyle = "rgb(51, 204, 102)";
-      return this.ctx.fillRect(x * this.stroke, this.height - y, this.stroke, y);
-    };
-
-    Animate.prototype.draw_current_two = function(x, y) {
-      this.ctx.clearRect(x * this.stroke, 0, this.stroke, this.height);
-      this.ctx.fillStyle = "rgb(255, 142, 10)";
-      return this.ctx.fillRect(x * this.stroke, this.height - y, this.stroke, y);
-    };
-
-    Animate.prototype.draw_last = function(x, y) {
-      this.ctx.clearRect(x * this.stroke, 0, this.stroke, this.height);
-      this.ctx.fillStyle = "rgb(150,123,200)";
-      return this.ctx.fillRect(x * this.stroke, this.height - y, this.stroke, y);
-    };
-
-    Animate.prototype.draw_progression = function(progression) {
-      var current, next,
-        _this = this;
-      if (this.steps === 0) {
-        this.steps = progression.length;
-      }
-      if (progression.length !== 0) {
-        current = progression.shift();
-        this.draw_current(current.x, current.y);
-        if (progression.length !== 0) {
-          next = progression.shift();
-          this.draw_current_two(next.x, next.y);
-        }
-        if (current) {
-          this.last_node1 = current;
-        }
-        if (next) {
-          this.last_node2 = next;
-        }
-        return window.setTimeout(function() {
-          if (_this.last_node1 !== null) {
-            _this.draw_last(_this.last_node1.x, _this.last_node1.y);
-          }
-          if (_this.last_node2 !== null) {
-            _this.draw_last(_this.last_node2.x, _this.last_node2.y);
-          }
-          return _this.draw_progression(progression);
-        }, this.frame_rate);
-      } else {
-        return $('#steps').html("" + this.steps + " comparative steps were required to sort " + this.data_size + " elements");
-      }
-    };
-
-    Animate.prototype.in_progression = function(current_node, progression) {
-      var node, _i, _len;
-      for (_i = 0, _len = progression.length; _i < _len; _i++) {
-        node = progression[_i];
-        if (current_node.x === node.x && current_node.y === node.y) {
-          return true;
-        }
-      }
-      return false;
-    };
-
     return Animate;
 
   })();
@@ -277,7 +203,7 @@
     };
 
     BubbleSort.prototype.bubble_sort = function() {
-      var current, element, index, previous, previous_previous, switched, _i, _j, _len, _len1, _ref, _ref1, _results;
+      var current, element, index, previous, switched, _i, _j, _len, _len1, _ref, _ref1, _results;
       switched = false;
       _ref = this.data_set;
       for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
@@ -285,7 +211,6 @@
         if (index !== 0) {
           current = element;
           previous = this.data_set[index - 1];
-          previous_previous = this.data_set[index - 2];
           this.animation_list.add_animation_node(current, "minimum");
           this.animation_list.add_animation_node(current, "minimum");
           if (previous.y > current.y) {
@@ -335,7 +260,7 @@
 
   $(document).ready(function() {
     var animate, bubble, canvas_height, canvas_width, frame_rate, stroke;
-    frame_rate = 50;
+    frame_rate = 40;
     stroke = 35;
     canvas_height = parseInt($('#bubble_sort').css('height').replace("px", ""));
     canvas_width = parseInt($('#bubble_sort').css('width').replace("px", ""));
@@ -344,7 +269,6 @@
     bubble.initialize_data();
     animate.draw_array(bubble.data_set);
     bubble.bubble_sort();
-    console.log(bubble.animation_list);
     return animate.process_animation(bubble.animation_list);
   });
 
