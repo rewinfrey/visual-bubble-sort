@@ -22,3 +22,13 @@ h3 {
 #steps {
   height: 25px;  
 }
+
+.explanation {
+  width: 470px;
+  margin: auto;
+}
+
+.text_right {
+  text-align: right;
+  margin-right: 88px;
+}
